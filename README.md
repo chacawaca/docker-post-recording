@@ -4,7 +4,7 @@ Watches for .ts files made by Live TV recordings, convert them to a friendly for
 
 ## projects used
 
-www.github.com/djaydev/docker-recordings-transcoder
+www.github.com/djaydev/docker-recordings-transcoder  
 www.github.com/jlesage/docker-handbrake  
 www.github.com/ffmpeg/ffmpeg  
 www.github.com/CCExtractor/ccextractor  
