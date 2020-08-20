@@ -5,7 +5,7 @@ Documentation is a WORK IN PROGRESS
 Watches for .ts files made by Live TV recordings, convert them to a friendly format, extract .srt file, add chapters with comchap or remove them with comcut.
 Tested with Emby recordings.
 
-Example run
+## Example run
 
 ```shell
 docker run -d \
@@ -17,10 +17,10 @@ docker run -d \
 	-e SOURCE_EXT=ts \
 	-e POST_PROCESS=comchap \
 	-e PUID=99 \
-    -e PGID=100 \
+    	-e PGID=100 \
 	-e UMASK=000 \
-    --restart always \
-    chacawaca/post-recording
+	--restart always \
+	chacawaca/post-recording
 ```
 
 Where:
@@ -35,9 +35,9 @@ Where:
 - `PGID`: ID of the group the application runs as.
 - `UMASK`: Mask that controls how file permissions are set for newly created files.
 
-Configuration: 
+## Configuration: 
 
-- /appdata/post-recording/scripts/custom.sh need to be configured for your need, some example are there to help you configure this for your need.
+- /appdata/post-recording/scripts/custom.sh **need to be configured** for you, some example are there to help you configure this for your need.
 - /appdata/post-recording/hooks can be configured to execute custom code
 
 

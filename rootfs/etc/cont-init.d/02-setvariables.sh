@@ -12,8 +12,8 @@
     if [ -f "/config/scripts/custom.sh" ] ; then
 		echo "Custom script found"
         chmod +x /config/scripts/custom.sh
-        sed -i "s|scripts/ENCODEREND|config/scripts/custom.sh|g" /etc/services.d/autovideoconverter/run
-        sed -i "s|ENCODEREND|custom.sh|g" /etc/services.d/autovideoconverter/run
+       # sed -i "s|scripts/ENCODEREND|config/scripts/custom.sh|g" /etc/services.d/autovideoconverter/run
+       # sed -i "s|ENCODEREND|custom.sh|g" /etc/services.d/autovideoconverter/run
     else echo "ERROR: Please save the custom script to /config/scripts/custom.sh"
     fi
 #fi
