@@ -28,7 +28,7 @@ fi
 FAILED_CONVERSIONS="/config/failed_conversions"
 SUCCESSFUL_CONVERSIONS="/config/successful_conversions"
 
-FFMPEG_CLI="/scripts/ENCODEREND"
+FFMPEG_CLI="/config/scripts/custom.sh"
 
 WATCHDIR_HASH="$(mktemp -d)"
 
@@ -148,7 +148,7 @@ process_video() {
 
 	log "=======================================     CONVERSION START     ================================================="
 	log " "
-	log "Starting conversion of '$video' using preset 'ENCODEREND'..."
+	log "Starting conversion of '$video'..."
 	#log "$NUM_VIDEO_TITLES title(s) to process."
     
 	hb_rc=0
