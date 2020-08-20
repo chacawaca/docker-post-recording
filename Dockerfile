@@ -1,4 +1,4 @@
-﻿# djaydev/recordings-converter
+﻿# chacawaca/post-recording
 
 FROM ubuntu:20.04
 
