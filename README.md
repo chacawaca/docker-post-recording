@@ -37,7 +37,7 @@ Where:
 
 ## Configuration: 
 
-- /appdata/post-recording/scripts/custom.sh need to be configured for your need, some example are there to help you configure this for your need.
+- /appdata/post-recording/scripts/custom.sh **need to be configured** for you, some example are there to help you configure this for your need.
 - /appdata/post-recording/hooks can be configured to execute custom code
 
 
