@@ -28,7 +28,7 @@ fi
 FAILED_CONVERSIONS="/config/failed_conversions"
 SUCCESSFUL_CONVERSIONS="/config/successful_conversions"
 
-HANDBRAKE_CLI="/scripts/ENCODEREND"
+FFMPEG_CLI="/scripts/ENCODEREND"
 
 WATCHDIR_HASH="$(mktemp -d)"
 
@@ -151,7 +151,7 @@ process_video() {
 	log "Starting conversion of '$video' ($hash) using preset 'ENCODEREND'..."
 	#log "$NUM_VIDEO_TITLES title(s) to process."
     
-	b_rc=0
+	hb_rc=0
     	
 
     # Get the output file basename: start with the one of the input file.
@@ -161,6 +161,7 @@ process_video() {
 	# Now set the final output filename by adding the extension.
 	OUTPUT_FILE="$OUTPUT_DIR/$basename.$AC_FORMAT"
 	OUTPUT_EDL="$OUTPUT_DIR/$basename.edl"
+	OUTPUT_SRT="$OUTPUT_DIR/$basename.srt"
 
 	# Call pre conversion hook.
 	if [ -f /config/hooks/pre_conversion.sh ]; then
@@ -173,14 +174,13 @@ process_video() {
 	# pre-conversion hook).
 	if [ ! -f "$video" ] && [ ! -d "$video" ]; then
 		log "Skipping '$video': no longer exists."
-		continue
+		hb_rc=1
 	fi
 
 	# Check whether destination already exists
 	if [ -f "$OUTPUT_FILE" ]; then
 		hb_rc=1
 		log "ERROR: Destination file '$OUTPUT_FILE' already exists."
-		break
 	fi
 
 	# Set the temporary output directory: this is where the video will be
@@ -190,82 +190,86 @@ process_video() {
 	if [ ! -d "$OUTPUT_DIR_TMP" ]; then
 		hb_rc=1
 		log "ERROR: Failed to create temporary directory under '$AC_OUTPUT_DIR'."
-		break
 	fi
 
 	# Set the temporary output filename.
 	OUTPUT_FILE_TMP="$OUTPUT_DIR_TMP/$basename.$AC_FORMAT"
 	OUTPUT_EDL_TMP="$OUTPUT_DIR_TMP/$basename.edl"
+	OUTPUT_SRT_TMP="$OUTPUT_DIR_TMP/$basename.srt"
 
 	# Invoke FFMPEG.
-	log "FFMPEG START"
-	echo "------- CONVERSION OUTPUT $(date) -------" >> \
-		/config/log/hb/conversion.log
-	$HANDBRAKE_CLI "$video" "$OUTPUT_FILE_TMP" 2>> \
-		/config/log/hb/conversion.log | \
-		/usr/bin/unbuffer -p grep "^Encoding" | \
-		stdbuf -oL cut -d',' -f2- | \
-		tee >(log_hb_encode_progress) > /dev/null
-	hb_rc=$?
-	log "FFMPEG FINISH WITH STATUS $hb_rc"
-
-	# Make sure the output file has been generated.
-	if [ $hb_rc -eq 0 ] && [ ! -f "$OUTPUT_FILE_TMP" ]; then
-		hb_rc=1
-	fi
-	
-	# Execute Comskip
-	if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comskip ]; then
-	log "COMSKIP START"
-		/opt/comchap/comchap --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
-		wait $pid
+	if [ $hb_rc -eq 0 ]; then
+		log "FFMPEG START"
+		echo "------- CONVERSION OUTPUT $(date) -------" >> \
+			/config/log/ffmpeg/conversion.log
+		$FFMPEG_CLI "$video" "$OUTPUT_FILE_TMP" "$OUTPUT_SRT_TMP" 2>> \
+			/config/log/ffmpeg/conversion.log | \
+			/usr/bin/unbuffer -p grep "^Encoding" | \
+			stdbuf -oL cut -d',' -f2- | \
+			tee >(log_hb_encode_progress) > /dev/null
 		hb_rc=$?
-	log "COMSKIP FINISH WITH STATUS $?"
-	fi
+		log "FFMPEG FINISH WITH STATUS $hb_rc"
+		log "-------------------------------------"
+		
+		
+		# Make sure the output file has been generated.
+		if [ $hb_rc -eq 0 ] && [ ! -f "$OUTPUT_FILE_TMP" ]; then
+			hb_rc=1
+		fi
+		
+		# Execute Comskip
+		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
+		log "COMCUT START"
+			/opt/comchap/comcut --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
+			wait $pid
+			hb_rc=$?
+		log "COMCUT FINISH WITH STATUS $?"
+		fi
+		
+		# Execute Comchap
+		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
+		log "COMCHAP START"
+			/opt/comchap/comchap --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
+			wait $pid
+			hb_rc=$?
+		log "COMCHAP FINISH WITH STATUS $?"
+		fi
+		log "-------------------------------------"
+		# Move the file to its final location if conversion terminated
+		# successfully.
+		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_FILE_TMP" ]; then
+		#log "CREATE OUTPUT DIRECTORY IF DONT EXIST"
+			mkdir -p "$OUTPUT_DIR"
+		log "MOVE TMP FILE TO DESTINATION FOLDER"
+		#log "$OUTPUT_FILE_TMP" "============>" "$OUTPUT_FILE"
+			mv "$OUTPUT_FILE_TMP" "$OUTPUT_FILE" 
+		fi
+		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_EDL_TMP" ]; then
+		log "MOVE EDL FILE TO DESTINATION FOLDER"
+		#log "$OUTPUT_EDL_TMP" "============>" "$OUTPUT_EDL"
+			mv "$OUTPUT_EDL_TMP" "$OUTPUT_EDL" 
+		fi
+		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_SRT_TMP" ]; then
+		log "MOVE SRT FILE TO DESTINATION FOLDER"
+		#log "$OUTPUT_SRT_TMP" "============>" "$OUTPUT_SRT"
+			mv "$OUTPUT_SRT_TMP" "$OUTPUT_SRT" 
+		fi
+	fi	
+		# Remove tmp directory
+		rm -rf "$OUTPUT_DIR_TMP"
+		log "TMP DIRECTORY REMOVED"
+		
+		# Call post conversion hook.
+		if [ -f /config/hooks/post_conversion.sh ]; then
+			log "Executing post-conversion hook..."
+			/usr/bin/with-contenv sh /config/hooks/post_conversion.sh $hb_rc "$OUTPUT_FILE" "$video" 
+			log "Post-conversion hook exited with $?"
+		fi
+		log "="
+		log "=======================================     CONVERSION DONE     ================================================="
 	
-	# Execute Comchap
-	if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
-	log "COMCHAP START"
-		/opt/comchap/comchap --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
-		wait $pid
-		hb_rc=$?
-	log "COMCHAP FINISH WITH STATUS $?"
-	fi
-	
-	# Move the file to its final location if conversion terminated
-	# successfully.
-	if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_FILE_TMP" ]; then
-	#log "CREATE OUTPUT DIRECTORY IF DONT EXIST"
-		mkdir -p "$OUTPUT_DIR"
-	log "MOVE TMP FILE TO DESTINATION FOLDER"
-	#log "$OUTPUT_FILE_TMP" "============>" "$OUTPUT_FILE"
-		mv "$OUTPUT_FILE_TMP" "$OUTPUT_FILE" 
-	fi
-	if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_EDL_TMP" ]; then
-	log "MOVE EDL FILE TO DESTINATION FOLDER"
-	#log "$OUTPUT_EDL_TMP" "============>" "$OUTPUT_EDL"
-		mv "$OUTPUT_EDL_TMP" "$OUTPUT_EDL" 
-	fi
-	
-	# Remove tmp directory
-	rm -rf "$OUTPUT_DIR_TMP"
-	log "TMP DIRECTORY REMOVED"
-	
-	# Call post conversion hook.
-	if [ -f /config/hooks/post_conversion.sh ]; then
-		log "Executing post-conversion hook..."
-		/usr/bin/with-contenv sh /config/hooks/post_conversion.sh $hb_rc "$OUTPUT_FILE" "$video" 
-		log "Post-conversion hook exited with $?"
-	fi
-	log "="
-	log "=======================================      END CONVERSION      ================================================="
-	[ $hb_rc -eq 0 ] || break
 
-
-    #NUM_PROCESSED_FILES="$(expr $NUM_PROCESSED_FILES + 1)"
-	
-	videodir="$(dirname "$video")"
-    if [ -f "$videodir/$basename.$AC_FORMAT" ] || [ -f "$videodir/$basename.mkv" ] && [ -s "$videodir/$basename.$AC_FORMAT" ] || [ -s "$videodir/$basename.mkv" ]; then
+	if [ $hb_rc -eq 0 ]; then
         log "Conversion ended successfully."
         echo "$video $hash" >> "$SUCCESSFUL_CONVERSIONS"
         if [ "$AC_KEEP_SOURCE" -eq 0 ]; then

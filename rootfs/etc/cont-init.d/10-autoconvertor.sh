@@ -18,7 +18,7 @@ fi
 # Make sure mandatory directories exist.
 mkdir -p /config/ghb
 mkdir -p /config/hooks
-mkdir -p /config/log/hb
+mkdir -p /config/log/ffmpeg
 mkdir -p /config/comskip
 mkdir -p /config/scripts
 
@@ -35,14 +35,22 @@ do
   cp /defaults/hooks/$hook.example /config/hooks/
 done
 
+# Copy example scripts if needed.
+for script in intel.sh nvidia.sh software.sh nvidia-hq.sh
+do
+  [ ! -f /config/scripts/$script ] || continue
+  [ ! -f /config/scripts/$script.example ] || continue
+  cp /defaults/scripts/$script.example /config/scripts/
+done
+
 #Copy default comskip.ini
 if [ ! -f /config/comskip/comskip.ini ]; then
   cp /defaults/comskip/comskip.ini /config/comskip/comskip.ini
 fi
 
-# Copy example script if needed.
-if [ ! -f /config/scripts/custom.sh.exemple ]; then
-  cp /defaults/scripts/custom.sh.exemple /config/scripts/custom.sh.exemple
+# Copy custom.sh script if needed.
+if [ ! -f /config/scripts/custom.sh ]; then
+  cp /defaults/scripts/custom.sh /config/scripts/custom.sh
 fi
 
 # Make sure the debug log is under the proper directory.

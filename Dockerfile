@@ -1,5 +1,5 @@
-﻿# 
- 
+﻿# djaydev/recordings-converter
+
 FROM ubuntu:20.04
 
 WORKDIR /tmp
@@ -14,7 +14,7 @@ RUN apt update && \
     useradd -u 911 -U -d /config -s /bin/false abc && \
     usermod -G users abc && \
     mkdir /config /output && \
-	apt install -y python3 git build-essential libargtable2-dev autoconf \
+	apt-get install -y python3 git build-essential libargtable2-dev autoconf \
     libtool-bin ffmpeg libsdl1.2-dev libavutil-dev libavformat-dev libavcodec-dev && \
 	
 # Clone Comskip
@@ -48,20 +48,19 @@ COPY --from=linuxserver/plex /etc/cont-init.d/50-gid-video /etc/cont-init.d/50-g
 # Copy the start scripts.
 COPY rootfs/ /
 
-ENV ENCODER=software \
-    SUBTITLES=1 \
+ENV SUBTITLES=1 \
     DELETE_TS=1 \
-    SOURCE_EXT=ts \
+	SOURCE_EXT=ts \
     PUID=99 \
     PGID=100 \
     UMASK=000 \
-    CONVERSION_FORMAT="mp4" \
-    POST_PROCESS=comchap \
+    CONVERSION_FORMAT=mp4 \
+	POST_PROCESS=comchap \
     NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=all \
-    SOURCE_STABLE_TIME=5 \
-    SOURCE_MIN_DURATION=10 \
-    LANG=C.UTF-8 \
-    LC_ALL=C.UTF-8
+	SOURCE_STABLE_TIME=5 \
+	SOURCE_MIN_DURATION=10 \
+	LANG=C.UTF-8 \
+	LC_ALL=C.UTF-8
 
 ENTRYPOINT ["/init"]
