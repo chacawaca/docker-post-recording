@@ -17,10 +17,10 @@ docker run -d \
 	-e SOURCE_EXT=ts \
 	-e POST_PROCESS=comchap \
 	-e PUID=99 \
-    -e PGID=100 \
+    	-e PGID=100 \
 	-e UMASK=000 \
-    --restart always \
-    chacawaca/post-recording
+	--restart always \
+	chacawaca/post-recording
 ```
 
 Where:
