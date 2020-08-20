@@ -146,9 +146,9 @@ process_video() {
 
 
 
-    log "=======================================    START CONVERSION      ================================================="
-	log "="
-	log "Starting conversion of '$video' ($hash) using preset 'ENCODEREND'..."
+	log "=======================================     CONVERSION START     ================================================="
+	log " "
+	log "Starting conversion of '$video' using preset 'ENCODEREND'..."
 	#log "$NUM_VIDEO_TITLES title(s) to process."
     
 	hb_rc=0
@@ -199,6 +199,7 @@ process_video() {
 
 	# Invoke FFMPEG.
 	if [ $hb_rc -eq 0 ]; then
+		log "-------------------------------------"
 		log "FFMPEG START"
 		echo "------- CONVERSION OUTPUT $(date) -------" >> \
 			/config/log/ffmpeg/conversion.log
@@ -256,6 +257,7 @@ process_video() {
 		fi
 	fi	
 		# Remove tmp directory
+		log "-------------------------------------"
 		rm -rf "$OUTPUT_DIR_TMP"
 		log "TMP DIRECTORY REMOVED"
 		
@@ -265,9 +267,9 @@ process_video() {
 			/usr/bin/with-contenv sh /config/hooks/post_conversion.sh $hb_rc "$OUTPUT_FILE" "$video" 
 			log "Post-conversion hook exited with $?"
 		fi
-		log "="
-		log "=======================================     CONVERSION DONE     ================================================="
-	
+		
+	log " "
+	log "=======================================     CONVERSION DONE     ================================================="
 
 	if [ $hb_rc -eq 0 ]; then
         log "Conversion ended successfully."
@@ -287,6 +289,7 @@ process_video() {
         log "Conversion failed."
         echo "$video $hash" >> "$FAILED_CONVERSIONS"
     fi
+	log "================================================================================================================="
 }
 
 process_watch_folder() {
