@@ -11,11 +11,11 @@ RUN apt update && \
       libtesseract4 libpng16-16 expat \
       libva-drm2 i965-va-driver \
       libxcb-shape0 libssl1.1 -y && \
-    useradd -u 911 -U -d /config -s /bin/false abc && \
-    usermod -G users abc && \
-    mkdir /config /output && \
-	apt-get install -y python3 git build-essential libargtable2-dev autoconf \
-    libtool-bin ffmpeg libsdl1.2-dev libavutil-dev libavformat-dev libavcodec-dev && \
+      useradd -u 911 -U -d /config -s /bin/false abc && \
+      usermod -G users abc && \
+      mkdir /config /output && \
+      apt-get install -y python3 git build-essential libargtable2-dev autoconf \
+      libtool-bin ffmpeg libsdl1.2-dev libavutil-dev libavformat-dev libavcodec-dev && \
 	
 # Clone Comskip
     cd /opt && \
@@ -50,17 +50,17 @@ COPY rootfs/ /
 
 ENV SUBTITLES=1 \
     DELETE_TS=1 \
-	SOURCE_EXT=ts \
+    SOURCE_EXT=ts \
     PUID=99 \
     PGID=100 \
     UMASK=000 \
     CONVERSION_FORMAT=mp4 \
-	POST_PROCESS=comchap \
+    POST_PROCESS=comchap \
     NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=all \
-	SOURCE_STABLE_TIME=5 \
-	SOURCE_MIN_DURATION=10 \
-	LANG=C.UTF-8 \
-	LC_ALL=C.UTF-8
+    SOURCE_STABLE_TIME=10 \
+    SOURCE_MIN_DURATION=10 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
 
 ENTRYPOINT ["/init"]
