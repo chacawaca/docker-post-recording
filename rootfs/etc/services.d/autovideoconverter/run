@@ -137,6 +137,7 @@ process_video() {
         SAME_AS_SRC)
             dirname="$(dirname "$video" | sed "s|^$wf||")"
             OUTPUT_DIR="$AC_OUTPUT_DIR/$dirname"
+			echo "$AC_OUTPUT_SUBDIR""======" "$dirname" "======""OUTPUT_DIR""======" "$video"
             ;;
         *)
             OUTPUT_DIR="$AC_OUTPUT_DIR/$AC_OUTPUT_SUBDIR"
@@ -145,7 +146,7 @@ process_video() {
     OUTPUT_DIR="$(echo "$OUTPUT_DIR" | sed 's|/\+|/|g' | sed 's|/\+$||')"
 
 
-
+echo "$AC_OUTPUT_SUBDIR""======" "$dirname" "======""OUTPUT_DIR""======" "$video"
 	log "=======================================     CONVERSION START     ================================================="
 	log " "
 	log "Starting conversion of '$video'..."
@@ -182,7 +183,7 @@ process_video() {
 		hb_rc=1
 		log "ERROR: Destination file '$OUTPUT_FILE' already exists."
 	fi
-
+echo "$AC_OUTPUT_SUBDIR""======" "$dirname" "======""OUTPUT_DIR""======" "$video"
 	# Set the temporary output directory: this is where the video will be
 	# actually written before being moved its final location once conversion is
 	# terminated.
