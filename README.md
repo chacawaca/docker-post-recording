@@ -23,7 +23,7 @@ docker run -d \
 
 Where:
 
-- `/docker/appdata/recordings-converter`: This is where the application stores its configuration, log and any files needing persistency. 
+- `/docker/appdata/post-recording`: This is where the application stores its configuration, log and any files needing persistency. 
 - `/home/user/videos`: This location contains .ts files that need converting. Other files are not processed.  
 - `DELETE_TS`: After converting remove the original .ts recording file. 1 = no, 0 = yes. **USE DELETE_TS=1 UNTIL YOU'RE SURE IT WORKS WITH YOUR VIDEO RECORDINGS.**
 - `CONVERSION_FORMAT`: Select output extension, your custom.sh need to be valid for this extension.
