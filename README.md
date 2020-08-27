@@ -1,7 +1,5 @@
 # docker-post-recording
 
-Documentation is a WORK IN PROGRESS
-
 Watches for .ts files made by Live TV recordings, convert them to a friendly format, extract .srt file, add chapters with comchap or remove them with comcut.
 Tested with Emby recordings.
 
@@ -17,7 +15,7 @@ docker run -d \
 	-e SOURCE_EXT=ts \
 	-e POST_PROCESS=comchap \
 	-e PUID=99 \
-    	-e PGID=100 \
+	-e PGID=100 \
 	-e UMASK=000 \
 	--restart always \
 	chacawaca/post-recording
@@ -25,7 +23,7 @@ docker run -d \
 
 Where:
 
-- `/docker/appdata/recordings-converter`: This is where the application stores its configuration, log and any files needing persistency. 
+- `/docker/appdata/post-recording`: This is where the application stores its configuration, log and any files needing persistency. 
 - `/home/user/videos`: This location contains .ts files that need converting. Other files are not processed.  
 - `DELETE_TS`: After converting remove the original .ts recording file. 1 = no, 0 = yes. **USE DELETE_TS=1 UNTIL YOU'RE SURE IT WORKS WITH YOUR VIDEO RECORDINGS.**
 - `CONVERSION_FORMAT`: Select output extension, your custom.sh need to be valid for this extension.
@@ -37,9 +35,9 @@ Where:
 
 ## Configuration: 
 
-- /appdata/post-recording/scripts/custom.sh **need to be configured** for you, some example are there to help you configure this for your need.
-- /appdata/post-recording/hooks can be configured to execute custom code
-
+- /scripts/custom.sh **need to be configured** for you, some example are there to help you configure this for your need.
+- /hooks can be configured to execute custom code
+- /comskip/comskip.ini can be configured too.
 
 ## Unraid Users
 
