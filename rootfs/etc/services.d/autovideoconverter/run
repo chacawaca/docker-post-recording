@@ -226,7 +226,7 @@ process_video() {
 		# Execute Comskip
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
 		log "COMCUT START"
-			/opt/comchap/comcut --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
+			/opt/comchap/comcut --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini $OUTPUT_FILE_TMP & pid=$!
 			wait $pid
 			hb_rc=$?
 		log "COMCUT FINISH WITH STATUS $?"
@@ -235,7 +235,7 @@ process_video() {
 		# Execute Comchap
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
 		log "COMCHAP START"
-			/opt/comchap/comchap --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
+			/opt/comchap/comchap --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini $OUTPUT_FILE_TMP & pid=$!
 			wait $pid
 			hb_rc=$?
 		log "COMCHAP FINISH WITH STATUS $?"
