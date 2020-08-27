@@ -217,6 +217,12 @@ process_video() {
 			hb_rc=1
 		fi
 		
+		 # Skip temp video if it is not readable.
+   		 if [ ! -r "$OUTPUT_FILE_TMP" ]; then
+       			log "Skipping temp '$OUTPUT_FILE_TMP': not readable, check permissions."
+        		hb_rc=1
+   		 fi
+		
 		# Execute Comskip
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
 		log "COMCUT START"
