@@ -27,7 +27,7 @@ RUN apt update && \
 
 # Clone Comchap
     cd /opt && \
-    git clone https://github.com/chacawaca/comchap.git && \
+    git clone https://github.com/BrettSheleski/comchap.git && \
     cd comchap && \
     make && \	
 	
