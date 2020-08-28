@@ -301,7 +301,7 @@ process_video() {
             done
         fi
 		
-		if [ "$AC_KEEP_SOURCE" -eq 2 ] && [ "$AC_BACKUP_DIR" != UNSET ]; then
+		if [ "$AC_KEEP_SOURCE" -eq 2 ]  then
 			mv "$video" "$AC_BACKUP_DIR/$basename.$AC_FORMAT"
 			log "backuped $video'."
 		fi
@@ -372,7 +372,7 @@ while true; do
         AC_OUTPUT_DIR="${OUTPUT_DIRECTORY:-/watch}"
         AC_OUTPUT_SUBDIR="${OUTPUT_SUBDIRECTORY:-SAME_AS_SRC}"
         AC_KEEP_SOURCE="${DELETE_TS:-1}"
-        AC_BACKUP_DIR="${BACKUP_DIRECTORY:-UNSET}"
+        AC_BACKUP_DIR="${BACKUP_DIRECTORY:-/backup}"
         AC_SOURCE_EXT="${SOURCE_EXT:-ts}"
         AC_POST_PROC="${POST_PROCESS:-comchap}"
         AC_SUBTITLE="${SUBTITLES:-0}"
