@@ -363,9 +363,9 @@ while true; do
         AC_OUTPUT_DIR="${OUTPUT_DIRECTORY:-/watch}"
         AC_OUTPUT_SUBDIR="${OUTPUT_SUBDIRECTORY:-SAME_AS_SRC}"
         AC_KEEP_SOURCE="${DELETE_TS:-1}"
-		AC_SOURCE_EXT="${SOURCE_EXT:-ts}"
-		AC_POST_PROC="${POST_PROCESS:-comchap}"
-		AC_SUBTITLE="${CCEXTRACTOR:-1}"
+        AC_SOURCE_EXT="${SOURCE_EXT:-ts}"
+        AC_POST_PROC="${POST_PROCESS:-comchap}"
+        AC_SUBTITLE="${CCEXTRACTOR:-1}"
 
         # Apply per-watch folder settings.
         if [ -n "${DIR#*/watch}" ]; then
