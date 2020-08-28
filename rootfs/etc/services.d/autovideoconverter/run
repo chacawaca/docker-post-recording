@@ -200,7 +200,7 @@ process_video() {
 	# Execute Comcut
 	if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
 		log "COMCUT START"
-			/opt/comchap/comcut --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" "$OUTPUT_DIR_TMP/$(basename "$INPUT")" & pid=$!
+			/opt/comchap/comcut --work-dir="$OUTPUT_DIR_TMP" --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" "$OUTPUT_DIR_TMP/$(basename "$INPUT")" & pid=$!
 			wait $pid
 			hb_rc=$?
 			INPUT="$OUTPUT_DIR_TMP/$(basename "$video")"
@@ -241,7 +241,7 @@ process_video() {
 		# Execute Comchap
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
 		log "COMCHAP START"
-			/opt/comchap/comchap --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
+			/opt/comchap/comchap --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
 			wait $pid
 			hb_rc=$?
 		log "COMCHAP FINISH WITH STATUS $?"
