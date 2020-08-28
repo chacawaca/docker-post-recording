@@ -200,7 +200,7 @@ process_video() {
 	# Execute Comcut
 	if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
 		log "COMCUT START"
-			/opt/comchap/comcut --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini --work-dir="$OUTPUT_DIR_TMP" "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT" & pid=$!
+			/opt/comchap/comcut --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini --work-dir="$OUTPUT_DIR_TMP/" "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT" & pid=$!
 			wait $pid
 			hb_rc=$?
 			INPUT="$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
@@ -211,7 +211,7 @@ process_video() {
 	# Execute Ccextractor
 	if [ $hb_rc -eq 0 ] && [ "$AC_SUBTITLE" = 1 ]; then
 		log "CCEXTRATOR START"
-		ccextractor "$INPUT" -o "$OUTPUT_SRT_TMP" 2>&1 | tee /config/log/ccextractor/"$basename".log
+		ccextractor "$INPUT" -o "$OUTPUT_SRT_TMP" > /config/log/ccextractor/"$basename".log
 		hb_rc=$?
 		log "CCEXTRATOR FINISH WITH STATUS $?"
 		log "-------------------------------------"
