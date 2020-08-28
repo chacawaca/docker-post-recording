@@ -9,6 +9,6 @@ OUTPUTSRT="$3"
 exec 3>&1 1>>${LogFile} 2>&1
 mediainfo --Inform="Video;codec_name=%Format%" "$INPUT" | head -c 14 >> "$OUTPUT".txt
 source "$OUTPUT".txt
-ccextractor "$INPUT" -o "$OUTPUTSRT"
+
 ffmpeg -hwaccel vaapi -vaapi_device /dev/dri/renderD128 -i "$INPUT" -vf 'format=nv12|vaapi,hwupload,deinterlace_vaapi' -c:v hevc_vaapi -brand mp42 -ac 2 -c:a libfdk_aac -b:a 128k "$OUTPUT"
 rm "$OUTPUT".txt

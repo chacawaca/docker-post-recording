@@ -11,7 +11,7 @@ OUTPUTSRT="$3"
 exec 3>&1 1>>${LogFile} 2>&1
 mediainfo --Inform="Video;codec_name=%Format%" "$INPUT" | head -c 14 >> "$OUTPUT".txt
 source "$OUTPUT".txt
-ccextractor "$INPUT" -o "$OUTPUTSRT"
+
 if [ $codec_name = "AVC" ] ; then
 ffmpeg -hwaccel cuvid -c:v h264_cuvid -deint 2 -drop_second_field 1 -surfaces 10 -i "$INPUT" -filter_complex "hwdownload,format=nv12,format=yuv420p" -c:v hevc_nvenc -rc:v vbr -rc-lookahead:v 32 -brand mp42 -c:a copy "$OUTPUT"
 fi
