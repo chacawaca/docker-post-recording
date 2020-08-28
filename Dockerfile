@@ -27,7 +27,7 @@ RUN apt update && \
 
 # Clone Comchap
     cd /opt && \
-    git clone https://github.com/chacawaca/comchap.git && \
+    git clone https://github.com/BrettSheleski/comchap.git && \
     cd comchap && \
     make && \	
 	
@@ -48,7 +48,7 @@ COPY --from=linuxserver/plex /etc/cont-init.d/50-gid-video /etc/cont-init.d/50-g
 # Copy the start scripts.
 COPY rootfs/ /
 
-ENV SUBTITLES=1 \
+ENV SUBTITLES=0 \
     DELETE_TS=1 \
     SOURCE_EXT=ts \
     PUID=99 \
@@ -56,7 +56,6 @@ ENV SUBTITLES=1 \
     UMASK=000 \
     CONVERSION_FORMAT=mp4 \
     POST_PROCESS=comchap \
-    CCEXTRACTOR=1 \
     NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=all \
     SOURCE_STABLE_TIME=10 \

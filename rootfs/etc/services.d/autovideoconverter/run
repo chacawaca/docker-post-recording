@@ -202,7 +202,7 @@ process_video() {
 	# Execute Comcut
 	if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
 		log "COMCUT START"
-			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" --work-dir="$OUTPUT_DIR_TMP" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
+			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" --work-dir="/watch/comskip" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
 			hb_rc=$?
 			INPUT="$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
 		log "COMCUT FINISH WITH STATUS $?"
@@ -210,7 +210,7 @@ process_video() {
 	fi
 	
 	# Execute Ccextractor
-	if [ $hb_rc -eq 0 ] && [ "$AC_SUBTITLE" = 1 ]; then
+	if [ $hb_rc -eq 0 ] && [ "$AC_SUBTITLE" = 0 ]; then
 		log "CCEXTRATOR START"
 		ccextractor "$INPUT" -o "$OUTPUT_SRT_TMP" 1>> /config/log/ccextractor/"$basename"."$date".log 2>&1
 		hb_rc=$?
@@ -365,7 +365,7 @@ while true; do
         AC_KEEP_SOURCE="${DELETE_TS:-1}"
         AC_SOURCE_EXT="${SOURCE_EXT:-ts}"
         AC_POST_PROC="${POST_PROCESS:-comchap}"
-        AC_SUBTITLE="${CCEXTRACTOR:-1}"
+        AC_SUBTITLE="${SUBTITLES:-0}"
 
         # Apply per-watch folder settings.
         if [ -n "${DIR#*/watch}" ]; then
