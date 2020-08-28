@@ -202,7 +202,7 @@ process_video() {
 	# Execute Comcut
 	if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
 		log "COMCUT START"
-			log "COPY FILE TO TEMP DIRECTORY"
+		log "COPY FILE TO TEMP DIRECTORY"
 			cp "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
 			INPUT="$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
 			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
@@ -213,9 +213,9 @@ process_video() {
 	
 	# Execute Ccextractor
 	if [ $hb_rc -eq 0 ] && [ "$AC_SUBTITLE" = 0 ]; then
-		log "CCEXTRATOR START"
-		ccextractor "$INPUT" -o "$OUTPUT_SRT_TMP" 1>> /config/log/ccextractor/"$basename"."$date".log 2>&1
-		hb_rc=$?
+		log "CCEXTRACTOR START"
+			ccextractor "$INPUT" -o "$OUTPUT_SRT_TMP" 1>> /config/log/ccextractor/"$basename"."$date".log 2>&1
+			hb_rc=$?
 		log "CCEXTRATOR FINISH WITH STATUS $?"
 		log "-------------------------------------"
 	fi
@@ -253,23 +253,23 @@ process_video() {
 		# Move the file to its final location if conversion terminated
 		# successfully.
 		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_FILE_TMP" ]; then
-		#log "CREATE OUTPUT DIRECTORY IF DONT EXIST"
 			mkdir -p "$OUTPUT_DIR"
-		log "MOVE TMP FILE TO DESTINATION FOLDER"
-		#log "$OUTPUT_FILE_TMP" "============>" "$OUTPUT_FILE"
+			log "MOVE TMP FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_FILE_TMP" "$OUTPUT_FILE" 
 		fi
+		
 		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_EDL_TMP" ]; then
-		log "MOVE EDL FILE TO DESTINATION FOLDER"
-		#log "$OUTPUT_EDL_TMP" "============>" "$OUTPUT_EDL"
+			log "MOVE EDL FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_EDL_TMP" "$OUTPUT_EDL" 
 		fi
+		
 		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_SRT_TMP" ]; then
-		log "MOVE SRT FILE TO DESTINATION FOLDER"
-		#log "$OUTPUT_SRT_TMP" "============>" "$OUTPUT_SRT"
+			log "MOVE SRT FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_SRT_TMP" "$OUTPUT_SRT" 
 		fi
+		
 	fi	
+	
 		# Remove tmp directory
 		log "-------------------------------------"
 		rm -rf "$OUTPUT_DIR_TMP"
@@ -287,8 +287,9 @@ process_video() {
 
 	if [ $hb_rc -eq 0 ]; then
         log "Conversion ended successfully."
-        echo "$video $hash" >> "$SUCCESSFUL_CONVERSIONS"
-        if [ "$AC_KEEP_SOURCE" -eq 0 ]; then
+		echo "$video $hash" >> "$SUCCESSFUL_CONVERSIONS"
+        
+		if [ "$AC_KEEP_SOURCE" -eq 0 ]; then
             rm -r "$video"
             log "Removed $video'."
             # Remove directory if empty (hidden files/folders are ignored).
@@ -299,6 +300,12 @@ process_video() {
                 videodir="$(dirname "$videodir")"
             done
         fi
+		
+		if [ "$AC_KEEP_SOURCE" -eq 2 ] && [ "$AC_BACKUP_DIR" != UNSET ]; then
+			mv "$video" "$AC_BACKUP_DIR/$basename.$AC_FORMAT"
+			log "backuped $video'."
+		fi
+		
     else
         log "Conversion failed."
         echo "$video $hash" >> "$FAILED_CONVERSIONS"
@@ -365,6 +372,7 @@ while true; do
         AC_OUTPUT_DIR="${OUTPUT_DIRECTORY:-/watch}"
         AC_OUTPUT_SUBDIR="${OUTPUT_SUBDIRECTORY:-SAME_AS_SRC}"
         AC_KEEP_SOURCE="${DELETE_TS:-1}"
+        AC_BACKUP_DIR="${BACKUP_DIRECTORY:-UNSET}"
         AC_SOURCE_EXT="${SOURCE_EXT:-ts}"
         AC_POST_PROC="${POST_PROCESS:-comchap}"
         AC_SUBTITLE="${SUBTITLES:-0}"
