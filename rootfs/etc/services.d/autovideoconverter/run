@@ -190,18 +190,20 @@ process_video() {
 		hb_rc=1
 		log "ERROR: Failed to create temporary directory under '$AC_OUTPUT_DIR'."
 	fi
-
+	
+	sleep 15s
+	
 	# Set the temporary output filename.
 	OUTPUT_FILE_TMP="$OUTPUT_DIR_TMP/$basename.$AC_FORMAT"
 	OUTPUT_EDL_TMP="$OUTPUT_DIR_TMP/$basename.edl"
 	OUTPUT_SRT_TMP="$OUTPUT_DIR_TMP/$basename.srt"
 	INPUT="$video"
 	log "-------------------------------------"
+	
 	# Execute Comcut
 	if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
 		log "COMCUT START"
-			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" --work-dir="\"$OUTPUT_DIR_TMP\"" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT" 1>> /config/log/comskip/"$basename".log 2>&1 & pid=$!
-			wait $pid
+			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" --work-dir="\"$OUTPUT_DIR_TMP\"" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT" 1>> /config/log/comskip/"$basename".log 2>&1
 			hb_rc=$?
 			INPUT="$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
 		log "COMCUT FINISH WITH STATUS $?"
