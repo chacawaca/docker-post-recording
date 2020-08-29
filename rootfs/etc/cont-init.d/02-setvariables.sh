@@ -25,7 +25,7 @@
 if [ ! -f /bin/sh ]; then
     ln -s /usr/bin/dash /bin/sh && ln -s /usr/bin/bash /bin/bash
 fi
-chmod +x /scripts/*
+chmod +x config/scripts/*
 sed -i "s/ENCODER/$ENCODER_SCRIPT/g" /etc/services.d/autovideoconverter/run
 sed -i "s/END/$ENCODER_SCRIPT_END/g" /etc/services.d/autovideoconverter/run
 sed -i "s/SEDUSER/$PUID/g" /etc/cont-init.d/10-autoconvertor.sh

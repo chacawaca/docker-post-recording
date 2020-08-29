@@ -19,6 +19,8 @@ fi
 mkdir -p /config/ghb
 mkdir -p /config/hooks
 mkdir -p /config/log/ffmpeg
+mkdir -p /config/log/ccextractor
+mkdir -p /config/log/comskip
 mkdir -p /config/comskip
 mkdir -p /config/scripts
 

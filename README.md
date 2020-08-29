@@ -10,7 +10,9 @@ docker run -d \
 	--name=post-recording \
 	-v /docker/appdata/post-recording:/config:rw \
 	-v /home/user/videos:/watch:rw \
+	-v /home/user/backup:/backup:rw \
 	-e DELETE_TS=1 \
+	-e SUBTITLES=0 \
 	-e CONVERSION_FORMAT=mkv \
 	-e SOURCE_EXT=ts \
 	-e POST_PROCESS=comchap \
@@ -23,9 +25,11 @@ docker run -d \
 
 Where:
 
-- `/docker/appdata/post-recording`: This is where the application stores its configuration, log and any files needing persistency. 
-- `/home/user/videos`: This location contains .ts files that need converting. Other files are not processed.  
-- `DELETE_TS`: After converting remove the original .ts recording file. 1 = no, 0 = yes. **USE DELETE_TS=1 UNTIL YOU'RE SURE IT WORKS WITH YOUR VIDEO RECORDINGS.**
+- `/config`: This is where the application stores its configuration, log and any files needing persistency. 
+- `/watch`: This location contains .ts files that need converting. Other files are not processed.  
+- `/backup`: Optional, only used if DELETE_TS is set to 2.
+- `DELETE_TS`: After converting remove the original .ts recording file. 0 = Yes, 1 = No, 2 = Move to backup directory **USE DELETE_TS=1 UNTIL YOU'RE SURE IT WORKS WITH YOUR VIDEO RECORDINGS.**
+- `SUBTITLES`: Extract subtitles to .srt. 0= Yes, 1 = No
 - `CONVERSION_FORMAT`: Select output extension, your custom.sh need to be valid for this extension.
 - `SOURCE_EXT`: If you want to convert something else than .ts
 - `POST_PROCESS`: option are comchap or comcut. default: comchap
@@ -35,7 +39,7 @@ Where:
 
 ## Configuration: 
 
-- /scripts/custom.sh **need to be configured** for you, some example are there to help you configure this for your need.
+- /scripts/custom.sh **need to be configured** by you, some example are there to help you configure this for your need.
 - /hooks can be configured to execute custom code
 - /comskip/comskip.ini can be configured too.
 

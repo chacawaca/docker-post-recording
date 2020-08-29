@@ -48,7 +48,7 @@ COPY --from=linuxserver/plex /etc/cont-init.d/50-gid-video /etc/cont-init.d/50-g
 # Copy the start scripts.
 COPY rootfs/ /
 
-ENV SUBTITLES=1 \
+ENV SUBTITLES=0 \
     DELETE_TS=1 \
     SOURCE_EXT=ts \
     PUID=99 \

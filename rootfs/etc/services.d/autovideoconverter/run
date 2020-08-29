@@ -87,7 +87,8 @@ get_video_titles() {
 process_video() {
     video="$1"
     wf="$2"
-
+	date=$(date +"%d-%m-%Y-%H%M")
+	
     # Skip video if it doesn't exists (may have been removed while processing
     # the watch directory).
     if [ ! -f "$video" ] && [ ! -d "$video" ]; then
@@ -190,20 +191,43 @@ process_video() {
 		hb_rc=1
 		log "ERROR: Failed to create temporary directory under '$AC_OUTPUT_DIR'."
 	fi
-
+	
 	# Set the temporary output filename.
 	OUTPUT_FILE_TMP="$OUTPUT_DIR_TMP/$basename.$AC_FORMAT"
 	OUTPUT_EDL_TMP="$OUTPUT_DIR_TMP/$basename.edl"
 	OUTPUT_SRT_TMP="$OUTPUT_DIR_TMP/$basename.srt"
-
+	INPUT="$video"
+	log "-------------------------------------"
+	
+	# Execute Comcut
+	if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
+		log "COMCUT START"
+		log "COPY FILE TO TEMP DIRECTORY"
+			cp "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
+			INPUT="$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
+			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
+			hb_rc=$?
+		log "COMCUT FINISH WITH STATUS $?"
+		log "-------------------------------------"
+	fi
+	
+	# Execute Ccextractor
+	if [ $hb_rc -eq 0 ] && [ "$AC_SUBTITLE" = 0 ]; then
+		log "CCEXTRACTOR START"
+			ccextractor "$INPUT" -o "$OUTPUT_SRT_TMP" 1>> /config/log/ccextractor/"$basename"."$date".log 2>&1
+			hb_rc=$?
+		log "CCEXTRATOR FINISH WITH STATUS $?"
+		log "-------------------------------------"
+	fi
+	
 	# Invoke FFMPEG.
 	if [ $hb_rc -eq 0 ]; then
-		log "-------------------------------------"
+		
 		log "FFMPEG START"
 		echo "------- CONVERSION OUTPUT $(date) -------" >> \
-			/config/log/ffmpeg/conversion.log
-		$FFMPEG_CLI "$video" "$OUTPUT_FILE_TMP" "$OUTPUT_SRT_TMP" 2>> \
-			/config/log/ffmpeg/conversion.log | \
+			/config/log/conversion.log
+		$FFMPEG_CLI "$INPUT" "$OUTPUT_FILE_TMP" "$OUTPUT_SRT_TMP" 2>> \
+			/config/log/conversion.log | \
 			/usr/bin/unbuffer -p grep "^Encoding" | \
 			stdbuf -oL cut -d',' -f2- | \
 			tee >(log_hb_encode_progress) > /dev/null
@@ -217,50 +241,35 @@ process_video() {
 			hb_rc=1
 		fi
 		
-		 # Skip temp video if it is not readable.
-   		 if [ ! -r "$OUTPUT_FILE_TMP" ]; then
-       			log "Skipping temp '$OUTPUT_FILE_TMP': not readable, check permissions."
-        		hb_rc=1
-   		 fi
-		
-		# Execute Comskip
-		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comcut ]; then
-		log "COMCUT START"
-			/opt/comchap/comcut --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
-			wait $pid
-			hb_rc=$?
-		log "COMCUT FINISH WITH STATUS $?"
-		fi
-		
 		# Execute Comchap
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
 		log "COMCHAP START"
-			/opt/comchap/comchap --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" & pid=$!
-			wait $pid
+			/opt/comchap/comchap --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
 			hb_rc=$?
 		log "COMCHAP FINISH WITH STATUS $?"
-		fi
 		log "-------------------------------------"
+		fi
+		
 		# Move the file to its final location if conversion terminated
 		# successfully.
 		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_FILE_TMP" ]; then
-		#log "CREATE OUTPUT DIRECTORY IF DONT EXIST"
 			mkdir -p "$OUTPUT_DIR"
-		log "MOVE TMP FILE TO DESTINATION FOLDER"
-		#log "$OUTPUT_FILE_TMP" "============>" "$OUTPUT_FILE"
+			log "MOVE TMP FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_FILE_TMP" "$OUTPUT_FILE" 
 		fi
+		
 		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_EDL_TMP" ]; then
-		log "MOVE EDL FILE TO DESTINATION FOLDER"
-		#log "$OUTPUT_EDL_TMP" "============>" "$OUTPUT_EDL"
+			log "MOVE EDL FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_EDL_TMP" "$OUTPUT_EDL" 
 		fi
+		
 		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_SRT_TMP" ]; then
-		log "MOVE SRT FILE TO DESTINATION FOLDER"
-		#log "$OUTPUT_SRT_TMP" "============>" "$OUTPUT_SRT"
+			log "MOVE SRT FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_SRT_TMP" "$OUTPUT_SRT" 
 		fi
+		
 	fi	
+	
 		# Remove tmp directory
 		log "-------------------------------------"
 		rm -rf "$OUTPUT_DIR_TMP"
@@ -278,8 +287,9 @@ process_video() {
 
 	if [ $hb_rc -eq 0 ]; then
         log "Conversion ended successfully."
-        echo "$video $hash" >> "$SUCCESSFUL_CONVERSIONS"
-        if [ "$AC_KEEP_SOURCE" -eq 0 ]; then
+		echo "$video $hash" >> "$SUCCESSFUL_CONVERSIONS"
+        
+		if [ "$AC_KEEP_SOURCE" -eq 0 ]; then
             rm -r "$video"
             log "Removed $video'."
             # Remove directory if empty (hidden files/folders are ignored).
@@ -290,6 +300,12 @@ process_video() {
                 videodir="$(dirname "$videodir")"
             done
         fi
+		
+		if [ "$AC_KEEP_SOURCE" -eq 2 ];  then
+			mv "$video" "$AC_BACKUP_DIR/$basename.$AC_FORMAT"
+			log "backuped $video'."
+		fi
+		
     else
         log "Conversion failed."
         echo "$video $hash" >> "$FAILED_CONVERSIONS"
@@ -356,12 +372,14 @@ while true; do
         AC_OUTPUT_DIR="${OUTPUT_DIRECTORY:-/watch}"
         AC_OUTPUT_SUBDIR="${OUTPUT_SUBDIRECTORY:-SAME_AS_SRC}"
         AC_KEEP_SOURCE="${DELETE_TS:-1}"
-		AC_SOURCE_EXT="${SOURCE_EXT:-ts}"
-		AC_POST_PROC="${POST_PROCESS:-comchap}"
+        AC_BACKUP_DIR="${BACKUP_DIRECTORY:-/backup}"
+        AC_SOURCE_EXT="${SOURCE_EXT:-ts}"
+        AC_POST_PROC="${POST_PROCESS:-comchap}"
+        AC_SUBTITLE="${SUBTITLES:-0}"
 
         # Apply per-watch folder settings.
         if [ -n "${DIR#*/watch}" ]; then
-            for VAR in FORMAT SOURCE_STABLE_TIME SOURCE_MIN_DURATION OUTPUT_DIR OUTPUT_SUBDIR KEEP_SOURCE SOURCE_EXT POST_PROC
+            for VAR in FORMAT SOURCE_STABLE_TIME SOURCE_MIN_DURATION OUTPUT_DIR OUTPUT_SUBDIR KEEP_SOURCE SOURCE_EXT POST_PROC SUBTITLE
             do
                 eval "AC_$VAR=\"\${AUTOMATED_CONVERSION_${VAR}_${DIR#*/watch}:-\$AC_$VAR}\""
             done
