@@ -302,7 +302,7 @@ process_video() {
         fi
 		
 		if [ "$AC_KEEP_SOURCE" -eq 2 ];  then
-			mv "$video" "$AC_BACKUP_DIR/$basename.$AC_FORMAT"
+			mv "$video" "$AC_BACKUP_DIR/$basename.$AC_SOURCE_EXT"
 			log "backuped $video'."
 		fi
 		
