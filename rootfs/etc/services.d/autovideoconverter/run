@@ -26,7 +26,9 @@ if [ "${UMASK:-UNSET}" != "UNSET" ]; then
 fi
 
 FAILED_CONVERSIONS="/config/failed_conversions"
+FAILED_COMSKIP="/config/failed_comskip"
 SUCCESSFUL_CONVERSIONS="/config/successful_conversions"
+FAILED_CCEXTRACTOR="/config/ccextractor"
 
 FFMPEG_CLI="/config/scripts/custom.sh"
 
@@ -206,7 +208,7 @@ process_video() {
 			cp "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
 			INPUT="$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
 			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
-			hb_rc=$?
+			comskip_rc=$?
 		log "COMCUT FINISH WITH STATUS $?"
 		log "-------------------------------------"
 	fi
@@ -215,7 +217,7 @@ process_video() {
 	if [ $hb_rc -eq 0 ] && [ "$AC_SUBTITLE" = 0 ]; then
 		log "CCEXTRACTOR START"
 			ccextractor "$INPUT" -o "$OUTPUT_SRT_TMP" 1>> /config/log/ccextractor/"$basename"."$date".log 2>&1
-			hb_rc=$?
+			cc_rc=$?
 		log "CCEXTRATOR FINISH WITH STATUS $?"
 		log "-------------------------------------"
 	fi
@@ -245,7 +247,7 @@ process_video() {
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
 		log "COMCHAP START"
 			/opt/comchap/comchap --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
-			hb_rc=$?
+			comskip_rc=$?
 		log "COMCHAP FINISH WITH STATUS $?"
 		log "-------------------------------------"
 		fi
@@ -258,12 +260,12 @@ process_video() {
 			mv "$OUTPUT_FILE_TMP" "$OUTPUT_FILE" 
 		fi
 		
-		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_EDL_TMP" ]; then
+		if [ $comskip_rc -eq 0 ] && [ -f "$OUTPUT_EDL_TMP" ]; then
 			log "MOVE EDL FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_EDL_TMP" "$OUTPUT_EDL" 
 		fi
 		
-		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_SRT_TMP" ]; then
+		if [ $cc_rc -eq 0 ] && [ -f "$OUTPUT_SRT_TMP" ]; then
 			log "MOVE SRT FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_SRT_TMP" "$OUTPUT_SRT" 
 		fi
@@ -284,7 +286,16 @@ process_video() {
 		
 	log " "
 	log "=======================================     CONVERSION DONE     ================================================="
-
+	if [$comskip_rc = 0] then
+	log "Comskip failed."
+        echo "$video $hash" >> "$FAILED_COMSKIP"
+	fi
+	if [$cc_rc = 0] then
+	log "Comskip failed."
+        echo "$video $hash" >> "$FAILED_CCEXTRACTOR"
+	fi
+	
+	
 	if [ $hb_rc -eq 0 ]; then
         log "Conversion ended successfully."
 		echo "$video $hash" >> "$SUCCESSFUL_CONVERSIONS"
