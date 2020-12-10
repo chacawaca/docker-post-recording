@@ -286,11 +286,11 @@ process_video() {
 		
 	log " "
 	log "=======================================     CONVERSION DONE     ================================================="
-	if [$comskip_rc = 0] then
+	if [$comskip_rc = 0]; then
 	log "Comskip failed."
         echo "$video $hash" >> "$FAILED_COMSKIP"
 	fi
-	if [$cc_rc = 0] then
+	if [$cc_rc = 0]; then
 	log "Comskip failed."
         echo "$video $hash" >> "$FAILED_CCEXTRACTOR"
 	fi
