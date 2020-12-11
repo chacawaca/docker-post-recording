@@ -243,7 +243,6 @@ process_video() {
 		if [ $hb_rc -eq 0 ] && [ ! -f "$OUTPUT_FILE_TMP" ]; then
 			hb_rc=1
 		fi
-
 		
 		# Execute Comchap
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
@@ -253,6 +252,10 @@ process_video() {
 		log "COMCHAP FINISH WITH STATUS $?"
 		log "-------------------------------------"
 		fi
+		log $comskip_rc
+		log $cc_rc
+		log $hb_rc
+		
 		# Make sure the output file has been generated.
 		if [ $comskip_rc -eq 0 ] && [ ! -f "$OUTPUT_EDL_TMP" ]; then
 			log "Comskip failed."
