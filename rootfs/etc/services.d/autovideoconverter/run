@@ -255,11 +255,13 @@ process_video() {
 		fi
 		# Make sure the output file has been generated.
 		if [ $comskip_rc -eq 0 ] && [ ! -f "$OUTPUT_EDL_TMP" ]; then
-			comskip_rc=1
+			log "Comskip failed."
+			echo "$video $hash" >> "$FAILED_COMSKIP"
 		fi
 		# Make sure the output file has been generated.
 		if [ $cc_rc -eq 0 ] && [ ! -f "$OUTPUT_SRT_TMP" ]; then
-			cc_rc=1
+			log "CCextrator failed."
+			echo "$video $hash" >> "$FAILED_CCEXTRACTOR"
 		fi
 		
 		# Move the file to its final location if conversion terminated
@@ -296,16 +298,7 @@ process_video() {
 		
 	log " "
 	log "=======================================     CONVERSION DONE     ================================================="
-	
-	if [ $comskip_rc -eq 1 ]; then
-		log "Comskip failed."
-        echo "$video $hash" >> "$FAILED_COMSKIP"
-	fi
-	if [ $cc_rc -eq 1 ]; then
-	log "CCextrator failed."
-        echo "$video $hash" >> "$FAILED_CCEXTRACTOR"
-	fi
-	
+		
 	
 	if [ $hb_rc -eq 0 ]; then
         log "Conversion ended successfully."
