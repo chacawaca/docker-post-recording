@@ -28,7 +28,7 @@ fi
 FAILED_CONVERSIONS="/config/failed_conversions"
 FAILED_COMSKIP="/config/failed_comskip"
 SUCCESSFUL_CONVERSIONS="/config/successful_conversions"
-FAILED_CCEXTRACTOR="/config/ccextractor"
+FAILED_CCEXTRACTOR="/config/failed_ccextractor"
 
 FFMPEG_CLI="/config/scripts/custom.sh"
 
@@ -242,6 +242,7 @@ process_video() {
 		if [ $hb_rc -eq 0 ] && [ ! -f "$OUTPUT_FILE_TMP" ]; then
 			hb_rc=1
 		fi
+
 		
 		# Execute Comchap
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
@@ -250,6 +251,14 @@ process_video() {
 			comskip_rc=$?
 		log "COMCHAP FINISH WITH STATUS $?"
 		log "-------------------------------------"
+		fi
+		# Make sure the output file has been generated.
+		if [ $comskip_rc -eq 0 ] && [ ! -f "$OUTPUT_EDL_TMP" ]; then
+			comskip_rc=1
+		fi
+		# Make sure the output file has been generated.
+		if [ $cc_rc -eq 0 ] && [ ! -f "$OUTPUT_SRT_TMP" ]; then
+			cc_rc=1
 		fi
 		
 		# Move the file to its final location if conversion terminated
@@ -286,12 +295,13 @@ process_video() {
 		
 	log " "
 	log "=======================================     CONVERSION DONE     ================================================="
-	if [$comskip_rc -ne 0]; then
-	log "Comskip failed."
+	
+	if [ $comskip_rc -eq 1 ]; then
+		log "Comskip failed."
         echo "$video $hash" >> "$FAILED_COMSKIP"
 	fi
-	if [$cc_rc -ne 0]; then
-	log "Comskip failed."
+	if [ $cc_rc -eq 1 ]; then
+	log "CCextrator failed."
         echo "$video $hash" >> "$FAILED_CCEXTRACTOR"
 	fi
 	
