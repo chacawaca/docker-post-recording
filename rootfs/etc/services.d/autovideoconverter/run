@@ -247,7 +247,7 @@ process_video() {
 		# Execute Comchap
 		if [ $hb_rc -eq 0 ] && [ "$AC_POST_PROC" = comchap ]; then
 		log "COMCHAP START"
-			/opt/comchap/comchap --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
+			/opt/comchap/comchap --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --ffmpeg=/usr/local/bin/ffmpeg --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
 			comskip_rc=$?
 		log "COMCHAP FINISH WITH STATUS $comskip_rc"
 		log "-------------------------------------"
