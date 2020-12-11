@@ -219,7 +219,7 @@ process_video() {
 		log "CCEXTRACTOR START"
 			ccextractor "$INPUT" -o "$OUTPUT_SRT_TMP" 1>> /config/log/ccextractor/"$basename"."$date".log 2>&1
 			cc_rc=$?
-		log "CCEXTRATOR FINISH WITH STATUS $?"
+		log "CCEXTRATOR FINISH WITH STATUS $cc_rc"
 		log "-------------------------------------"
 	fi
 	
@@ -249,24 +249,10 @@ process_video() {
 		log "COMCHAP START"
 			/opt/comchap/comchap --lockfile="$OUTPUT_DIR_TMP/$basename.lock" --keep-edl --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$OUTPUT_FILE_TMP" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
 			comskip_rc=$?
-		log "COMCHAP FINISH WITH STATUS $?"
+		log "COMCHAP FINISH WITH STATUS $comskip_rc"
 		log "-------------------------------------"
 		fi
-		log $comskip_rc
-		log $cc_rc
-		log $hb_rc
-		
-		# Make sure the output file has been generated.
-		if [ $comskip_rc -eq 0 ] && [ ! -f "$OUTPUT_EDL_TMP" ]; then
-			log "Comskip failed."
-			echo "$video $hash" >> "$FAILED_COMSKIP"
-		fi
-		# Make sure the output file has been generated.
-		if [ $cc_rc -eq 0 ] && [ ! -f "$OUTPUT_SRT_TMP" ]; then
-			log "CCextrator failed."
-			echo "$video $hash" >> "$FAILED_CCEXTRACTOR"
-		fi
-		
+				
 		# Move the file to its final location if conversion terminated
 		# successfully.
 		if [ $hb_rc -eq 0 ] && [ -f "$OUTPUT_FILE_TMP" ]; then
@@ -283,6 +269,16 @@ process_video() {
 		if [ $cc_rc -eq 0 ] && [ -f "$OUTPUT_SRT_TMP" ]; then
 			log "MOVE SRT FILE TO DESTINATION FOLDER"
 			mv "$OUTPUT_SRT_TMP" "$OUTPUT_SRT" 
+		fi
+
+		if [ ! -f "$OUTPUT_EDL" ]; then
+			log "Comskip failed."
+			echo "$video $hash" >> "$FAILED_COMSKIP"
+		fi
+
+		if [ ! -f "$OUTPUT_SRT" ]; then
+			log "CCextrator failed."
+			echo "$video $hash" >> "$FAILED_CCEXTRACTOR"
 		fi
 		
 	fi	
