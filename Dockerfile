@@ -15,7 +15,7 @@ RUN apt update && \
       usermod -G users abc && \
       mkdir /config /output && \
       apt-get install -y python3 git build-essential libargtable2-dev autoconf \
-      libtool-bin ffmpeg libsdl1.2-dev libavutil-dev libavformat-dev libavcodec-dev && \
+      libtool-bin libsdl1.2-dev libavutil-dev libavformat-dev libavcodec-dev && \
 	
 # Clone Comskip
     cd /opt && \
