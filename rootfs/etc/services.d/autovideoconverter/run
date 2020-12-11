@@ -154,7 +154,8 @@ process_video() {
 	#log "$NUM_VIDEO_TITLES title(s) to process."
     
 	hb_rc=0
-    	
+    comskip_rc=0
+	cc_rc=0
 
     # Get the output file basename: start with the one of the input file.
 	basename="$(basename "$video" | sed 's/\.[^.]*$//')"
@@ -378,6 +379,8 @@ log "starting..."
 
 [ -f "$FAILED_CONVERSIONS" ] || touch "$FAILED_CONVERSIONS"
 [ -f "$SUCCESSFUL_CONVERSIONS" ] || touch "$SUCCESSFUL_CONVERSIONS"
+[ -f "$FAILED_COMSKIP" ] || touch "$FAILED_COMSKIP"
+[ -f "$FAILED_CCEXTRACTOR" ] || touch "$FAILED_CCEXTRACTOR"
 
 while true; do
     for i in $(seq 1 ${AUTOMATED_CONVERSION_MAX_WATCH_FOLDERS:-5}); do
