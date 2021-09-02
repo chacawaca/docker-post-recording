@@ -15,7 +15,8 @@ RUN apt update && \
       usermod -G users abc && \
       mkdir /config /output && \
       apt-get install -y python3 git build-essential libargtable2-dev autoconf \
-      libtool-bin libsdl1.2-dev libavutil-dev libavformat-dev libavcodec-dev && \
+      libtool-bin libsdl1.2-dev libavutil-dev libavformat-dev libavcodec-dev nginx && \
+      echo "daemon off;" >> /etc/nginx/nginx.conf && \
 	
 # Clone Comskip
     cd /opt && \
@@ -37,11 +38,13 @@ RUN apt update && \
     rm -rf /tmp/* /var/lib/apt/lists/*
 
 # Copy ccextractor
-COPY --from=djaydev/ccextractor /usr/local/bin /usr/local/bin
+COPY --from=gizmotronic/ccextractor /usr/local/bin /usr/local/bin
 # Copy ffmpeg
 COPY --from=chacawaca/ffmpeg /usr/local/ /usr/local/
 # Copy S6-Overlay
-COPY --from=djaydev/baseimage-s6overlay:amd64 /tmp/ /
+#COPY --from=djaydev/baseimage-s6overlay:amd64 /tmp/ /
+ADD https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.1/s6-overlay-amd64-installer /tmp/
+RUN chmod +x /tmp/s6-overlay-amd64-installer && /tmp/s6-overlay-amd64-installer /
 # Copy script for Intel iGPU permissions
 COPY --from=linuxserver/plex /etc/cont-init.d/50-gid-video /etc/cont-init.d/50-gid-video
 
