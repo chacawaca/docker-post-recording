@@ -18,7 +18,7 @@ mediainfo --Inform="Video;codec_name=%Format%" "$INPUT" | head -c 14 >> "$OUTPUT
 source "$OUTPUT".txt
 
 #------------------MODIFY THIS PART-------------------
-ffmpeg -i "$INPUT" -hide_banner -loglevel info -max_muxing_queue_size 512 -c:v libx265 -brand mp42 -ac 2 -c:a libfdk_aac -b:a 128k "$OUTPUT"
+ffmpeg -i "$INPUT" -hide_banner -loglevel info -max_muxing_queue_size 512 -c:v libx265 -brand mp42 -ac 2 -c:a libfdk_aac -b:a 128k -ignore_unknown -map 0 "$OUTPUT"
 
 #----------------DONT MODIFY THIS PART----------------
 
