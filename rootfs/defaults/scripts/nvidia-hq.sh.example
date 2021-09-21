@@ -26,7 +26,7 @@ if [ $codec_name = "MPE" ] ; then
 ffmpeg -hwaccel cuvid -c:v mpeg2_cuvid -deint 2 -drop_second_field 1 -surfaces 10 -i "$INPUT" -c:v hevc_nvenc -rc vbr_hq -cq 22 -qmin 23 -qmax 21 -maxrate:v 8M -bufsize:v 8M -rc-lookahead:v 32 -c:a copy -ignore_unknown -map 0 "$OUTPUT"
 fi
 if [ $codec_name != "AVC" ] && [ $codec_name != "MPE" ] ; then
-ffmpeg -hwaccel nvdec -i "$INPUT" -c:v hevc_nvenc -rc vbr_hq -cq 22 -qmin 23 -qmax 21 -maxrate:v 8M -bufsize:v 8M -rc-lookahead:v 32 -c:a copy "$OUTPUT"
+ffmpeg -hwaccel nvdec -i "$INPUT" -c:v hevc_nvenc -rc vbr_hq -cq 22 -qmin 23 -qmax 21 -maxrate:v 8M -bufsize:v 8M -rc-lookahead:v 32 -c:a copy -ignore_unknown -map 0 "$OUTPUT"
 fi
 
 #----------------DONT MODIFY THIS PART----------------
