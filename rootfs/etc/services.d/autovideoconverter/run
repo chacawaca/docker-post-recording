@@ -2,10 +2,10 @@
 
 # Prevent the error below from happening when comchap passes this param: --ffmpeg=/usr/local/bin/ffmpeg
 # /usr/local/bin/ffmpeg: error while loading shared libraries: libavdevice.so.58...
-if ! grep -q "/usr/local/lib" /etc/ld.so.conf; then
-    echo "/usr/local/lib" >> /etc/ld.so.conf
-    ldconfig
-fi
+#if ! grep -q "/usr/local/lib" /etc/ld.so.conf; then
+#    echo "/usr/local/lib" >> /etc/ld.so.conf
+#    ldconfig
+#fi
 
 set -u # Treat unset variables as an error.
 USER_ID=SEDUSER
