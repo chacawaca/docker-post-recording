@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#----------------DONT MODIFY THIS PART----------------
+
+date=$(date +"%d-%m-%Y-%H%M")
+IFS=$(echo -en "\n\b")
+export LD_LIBRARY_PATH=/usr/local/lib
+
+INPUT="$1"
+OUTPUT="$2"
+INPUTSRT="$3"
+
+LogFile=/config/log/ffmpeg/"$(basename "$INPUT" | sed 's/\.[^.]*$//')".$date.log
+
+
+exec 3>&1 1>>${LogFile} 2>&1
+mediainfo --Inform="Video;codec_name=%Format%" "$INPUT" | head -c 14 >> "$OUTPUT".txt
+source "$OUTPUT".txt
+
+#------------------MODIFY THIS PART-------------------
+
+if [ $codec_name = "AVC" ] ; then
+ffmpeg -hwaccel cuvid -c:v h264_cuvid -deint 2 -drop_second_field 1 -surfaces 10 -i "$INPUT" -filter_complex "hwdownload,format=nv12,format=yuv420p" -c:v hevc_nvenc -rc:v vbr -rc-lookahead:v 32 -brand mp42 -ac 2 -c:a libfdk_aac -b:a 128k -ignore_unknown -map 0 "$OUTPUT"
+fi
+if [ $codec_name = "MPE" ] ; then
+ffmpeg -hwaccel cuvid -c:v mpeg2_cuvid -deint 2 -drop_second_field 1 -surfaces 10 -i "$INPUT" -c:v hevc_nvenc -rc:v vbr -rc-lookahead:v 32 -brand mp42 -ac 2 -c:a libfdk_aac -b:a 128k -ignore_unknown -map 0 "$OUTPUT"
+fi
+if [ $codec_name != "AVC" ] && [ $codec_name != "MPE" ] ; then
+ffmpeg -hwaccel nvdec -i "$INPUT" -c:v hevc_nvenc -rc:v vbr -rc-lookahead:v 32 -brand mp42 -ac 2 -c:a libfdk_aac -b:a 128k -ignore_unknown -map 0 "$OUTPUT"
+fi
+
+#----------------DONT MODIFY THIS PART----------------
+
+rm "$OUTPUT".txt
+
