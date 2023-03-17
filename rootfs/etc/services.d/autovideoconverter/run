@@ -215,7 +215,9 @@ process_video() {
 		log "COPY FILE TO TEMP DIRECTORY"
 			cp "$INPUT" "$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
 			INPUT="$OUTPUT_DIR_TMP/$basename.$AC_SOURCE_EXT"
-			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" --comskip=/opt/Comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
+            # Comcut doesn't support using comskip hw accel
+            /opt/comskip/comskip --comskip-ini=/config/comskip/comskip.ini "$INPUT" "$COMSKIP_FLAGS" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
+			/opt/comchap/comcut --lockfile="$OUTPUT_DIR/$basename.lock" 1>> /config/log/comskip/"$basename"."$date".log 2>&1
 			comskip_rc=$?
 		log "COMCUT FINISH WITH STATUS $?"
 		log "-------------------------------------"
